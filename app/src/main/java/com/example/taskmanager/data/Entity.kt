@@ -1,4 +1,11 @@
 package com.example.taskmanager.data
 
-class Entity {
-}
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity("users")
+data class Entity(
+    @PrimaryKey
+    val email: String,
+    val password : String
+)

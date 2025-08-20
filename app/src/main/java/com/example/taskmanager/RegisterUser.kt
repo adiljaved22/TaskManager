@@ -126,7 +126,15 @@ fun RegisterUser(onBack: () -> Unit) {
             label = { Text("Confirm Password") })
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { onBack() }, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick =
+                {
+                    if( username.isNotEmpty() && selectedImage != null) {
+                        UserSession.currentUser = User(username, selectedImage)
+                        onBack()
+                    }
+                }
+            , modifier = Modifier.fillMaxWidth()) {
             Text("Register")
         }
     }

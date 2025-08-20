@@ -11,10 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material3.Button
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material3.Button
+
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -98,11 +99,11 @@ fun LoginScreen(NavigateToRegister:()-> Unit,NavigateTOLogin:()-> Unit) {
         )
         Spacer(modifier = Modifier.height(12.dp))
         Button(onClick ={
-                emailError = when {
-            email.isBlank() -> "Email is required"
-            !isValidEmail(email) -> "Invalid Email"
-            else -> ""
-        }
+            emailError = when {
+                email.isBlank() -> "Email is required"
+                !isValidEmail(email) -> "Invalid Email"
+                else -> ""
+            }
             passwordError= when{
                 password.isBlank()-> "password is required"
                 password.length<6->  "Password must be at least 6 characters"
@@ -112,7 +113,7 @@ fun LoginScreen(NavigateToRegister:()-> Unit,NavigateTOLogin:()-> Unit) {
             if (emailError.isEmpty()&&passwordError.isEmpty()){
                 Toast.makeText(context, "Login Successful", Toast.LENGTH_LONG).show()
 
-                  NavigateTOLogin()
+                NavigateTOLogin()
             }else{
                 Toast.makeText(context, "Login unSuccessful", Toast.LENGTH_LONG).show()
             }
