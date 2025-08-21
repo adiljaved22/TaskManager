@@ -22,10 +22,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             TaskManagerTheme {
                 Surface(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .systemBarsPadding()
-                        )
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .systemBarsPadding()
+                )
                 {
                     Navigation()
                 }
@@ -33,4 +33,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-

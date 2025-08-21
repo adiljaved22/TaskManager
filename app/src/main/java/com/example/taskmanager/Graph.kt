@@ -1,22 +1,22 @@
 package com.example.taskmanager
 
 import android.content.Context
-import androidx.room.Database
 import androidx.room.Room
-import com.example.taskmanager.data.DataBase
+import com.example.taskmanager.data.userDataBase
 import com.example.taskmanager.data.Repository
 
 object Graph {
-    lateinit var database: DataBase
+    lateinit var database: userDataBase
     val userRepository by lazy {
-        Repository(newDao = database.dao())
+        Repository(newDao = database.dao(), taskDao = database.taskDao())
     }
     fun provide(context: Context){
         database= Room.databaseBuilder(
             context,
-            DataBase::class.java,
+            userDataBase::class.java,
             name = "Registration.db"
-        ).build()
+        ).fallbackToDestructiveMigration()
+            .build()
 
     }
 }

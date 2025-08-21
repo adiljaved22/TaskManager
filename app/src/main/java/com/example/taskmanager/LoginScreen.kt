@@ -1,5 +1,6 @@
 package com.example.taskmanager
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,8 @@ import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material3.Button
 
 import androidx.compose.material.icons.rounded.Email
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -29,6 +32,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Unspecified
 import androidx.compose.ui.platform.LocalContext
@@ -38,8 +42,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 
+
 @Composable
-fun LoginScreen(NavigateToRegister:()-> Unit,NavigateTOLogin:()-> Unit) {
+fun LoginScreen(NavigateToRegister:()-> Unit,NavigateTOLogin:()-> Unit,viewModel: userViewModel) {
     Column(
         modifier = Modifier.fillMaxSize().padding(8.dp),
         verticalArrangement = Arrangement.Center,
@@ -55,6 +60,7 @@ fun LoginScreen(NavigateToRegister:()-> Unit,NavigateTOLogin:()-> Unit) {
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
+            singleLine = true,
             label = {
                 Text(
                     text = emailError.ifEmpty { "Email" },
@@ -70,6 +76,7 @@ fun LoginScreen(NavigateToRegister:()-> Unit,NavigateTOLogin:()-> Unit) {
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
+            singleLine = true,
             label = {
                 Text(
                     text = passwordError.ifEmpty { "Password" },
@@ -98,29 +105,34 @@ fun LoginScreen(NavigateToRegister:()-> Unit,NavigateTOLogin:()-> Unit) {
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Button(onClick ={
-            emailError = when {
-                email.isBlank() -> "Email is required"
-                !isValidEmail(email) -> "Invalid Email"
-                else -> ""
-            }
-            passwordError= when{
-                password.isBlank()-> "password is required"
-                password.length<6->  "Password must be at least 6 characters"
-                else->""
-            }
+        Button(
+            onClick = {
+                emailError = when {
+                    email.isBlank() -> "Email is required"
+                    !isValidEmail(email) -> "Invalid Email"
+                    else -> ""
+                }
+                passwordError = when {
+                    password.isBlank() -> "password is required"
+                    password.length < 6 -> "Password must be at least 6 characters"
+                    else -> ""
+                }
 
-            if (emailError.isEmpty()&&passwordError.isEmpty()){
-                Toast.makeText(context, "Login Successful", Toast.LENGTH_LONG).show()
+                if (emailError.isEmpty() && passwordError.isEmpty()) {
+                    viewModel.login(email, password) { success, message, user ->
+                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                        if (success && user != null) {
+                            UserSession.currentUser = user
 
-                NavigateTOLogin()
-            }else{
-                Toast.makeText(context, "Login unSuccessful", Toast.LENGTH_LONG).show()
-            }
-        }
+                            NavigateTOLogin()
+                        }
+                    }
+                } else {
+                    Toast.makeText(context, "Login Unsuccessful", Toast.LENGTH_LONG).show()
+                }
 
 
-
+            },
 
 
         ) {
@@ -130,7 +142,7 @@ fun LoginScreen(NavigateToRegister:()-> Unit,NavigateTOLogin:()-> Unit) {
         Spacer(modifier = Modifier.height(12.dp))
         Row{
             Text("Not a Member?")
-            Text("Sign In", modifier = Modifier.clickable{
+            Text("Sign Up", modifier = Modifier.clickable{
                 NavigateToRegister()
             })
         }

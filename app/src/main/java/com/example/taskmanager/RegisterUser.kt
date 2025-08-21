@@ -1,48 +1,82 @@
 package com.example.taskmanager
 
-import java.util.Calendar
-
+import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.Unspecified
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.example.taskmanager.data.UserEntity
+
+import java.util.Calendar
+import kotlin.math.sin
+import kotlin.text.ifEmpty
 
 
 @Composable
-fun RegisterUser(onBack: () -> Unit) {
+fun RegisterUser(onBack: () -> Unit, viewModel: userViewModel) {
     var context = LocalContext.current
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var DOB by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmpassword by remember { mutableStateOf("") }
+    var emailError by rememberSaveable { mutableStateOf("") }
+    var passwordError by rememberSaveable { mutableStateOf("") }
 
     var selectedImage by remember { mutableStateOf<Uri?>(null) }
-
-
+var passwordVisible by remember { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri -> selectedImage = uri }
+    ) { uri -> selectedImage = uri
+    if(uri!=null){
+        context.contentResolver.takePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
+    }
+
+
+    }
 
     Column(
         modifier = Modifier
@@ -84,10 +118,17 @@ fun RegisterUser(onBack: () -> Unit) {
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Username") })
+            label = { Text("Username") },
+            singleLine = true)
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
+        OutlinedTextField(value = email, onValueChange = { email = it },
+            label = {
+                Text(
+                    text = emailError.ifEmpty { "Email" },
+                    color = if (emailError.isNotEmpty()) Red else Unspecified
+                )
+                    }, singleLine = true)
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
@@ -117,24 +158,97 @@ fun RegisterUser(onBack: () -> Unit) {
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") })
+            singleLine = true,
+            label = { Text(
+                text = passwordError.ifEmpty { "Password" },
+                color = if (passwordError.isNotEmpty()) Red else Unspecified
+            ) },visualTransformation =
+                if (passwordVisible) {
+                    VisualTransformation.None
+
+                } else {
+                    PasswordVisualTransformation('*')
+                },
+            trailingIcon = {
+                val visibilityIcon =
+                    if (passwordVisible) {
+                        Icons.Filled.Visibility
+                    } else {
+                        Icons.Filled.VisibilityOff
+                    }
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = visibilityIcon, contentDescription = null)
+                }
+            })
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = confirmpassword,
             onValueChange = { confirmpassword = it },
-            label = { Text("Confirm Password") })
+            singleLine = true,
+            label = { Text("Confirm Password") } ,
+                    visualTransformation =
+            if (passwordVisible) {
+                VisualTransformation.None
+
+            } else {
+                PasswordVisualTransformation('*')
+            },
+            trailingIcon = {
+                val visibilityIcon =
+                    if (passwordVisible) {
+                        Icons.Filled.Visibility
+                    } else {
+                        Icons.Filled.VisibilityOff
+                    }
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = visibilityIcon, contentDescription = null)
+                }
+            })
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick =
                 {
-                    if( username.isNotEmpty() && selectedImage != null) {
-                        UserSession.currentUser = User(username, selectedImage)
-                        onBack()
+                    emailError = when {
+                        email.isBlank() -> "Email is required"
+                        !isValidEmail(email) -> "Invalid Email"
+                        else -> ""
                     }
-                }
-            , modifier = Modifier.fillMaxWidth()) {
+                    passwordError = when {
+                        password.isBlank() -> "password is required"
+                        password.length < 6 -> "Password must be at least 6 characters"
+                        else -> ""
+                    }
+                    if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmpassword.isEmpty() || selectedImage == null) {
+                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_LONG).show()
+
+                    } else if (password != confirmpassword) {
+                        Toast.makeText(context, "Passwords do not match", Toast.LENGTH_LONG).show()
+                    }
+
+
+                    else {
+                        val imageUri=selectedImage?.toString()?:""
+                        val user = UserEntity(
+                            username = username,
+                            email = email,
+                            password = password,
+                            imageuri = imageUri,
+                            dateofbirth = DOB
+                        )
+
+                        viewModel.register(user) { success, message ->
+                            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                            if (success) {
+                                UserSession.currentUser= user
+                                onBack()
+                            }
+                        }
+                    }
+
+                }, modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Register")
         }
     }

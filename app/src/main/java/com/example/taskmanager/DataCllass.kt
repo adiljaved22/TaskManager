@@ -2,6 +2,9 @@ package com.example.taskmanager
 
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
+import com.example.taskmanager.data.TaskEntity
+import com.example.taskmanager.data.UserEntity
+
 
 data class User(
     val username: String,
@@ -9,15 +12,9 @@ data class User(
 )
 
 object UserSession {
-    var currentUser: User? = null
+    var currentUser: UserEntity? = null
 }
 
-data class TaskItem
-    (
-    val title: String,
-    val description: String
-)
-object Responsible{
-    val formlist = mutableStateListOf<TaskItem>()
-    val savedlist=mutableStateListOf<TaskItem>()
+object Responsible {
+    val savedlist = mutableStateListOf<TaskEntity>()
 }

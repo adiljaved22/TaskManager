@@ -1,6 +1,6 @@
-
 package com.example.taskmanager
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +28,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,8 +38,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+
 @Composable
-fun Home(NavigateToHome: () -> Unit, NavigateToProfile: () -> Unit) {
+fun Home(NavigateToHome: () -> Unit, NavigateToProfile: () -> Unit, viewModel: userViewModel) {
+    val user = UserSession.currentUser
+    LaunchedEffect(user?.email) {
+        user?.let {
+            viewModel.loadTasks(it.email)
+        }
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -54,15 +62,29 @@ fun Home(NavigateToHome: () -> Unit, NavigateToProfile: () -> Unit) {
                         .padding(bottom = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = rememberAsyncImagePainter(user.profileImage),
-                        contentDescription = "Profile Image",
-                        modifier = Modifier
+                    if (!user.imageuri.isNullOrEmpty()) {
+
+                        Image(
+                            painter = rememberAsyncImagePainter(Uri.parse(user.imageuri)),
+                            contentDescription = "Profile Image",
+                            modifier = Modifier
+                                .size(70.dp)
+                                .clip(CircleShape)
+                                .clickable { NavigateToProfile() },
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Box(modifier = Modifier
                             .size(70.dp)
                             .clip(CircleShape)
-                        .clickable { NavigateToProfile() },
-                        contentScale = ContentScale.Crop
-                    )
+                            .background(Color.Gray),
+                            contentAlignment = Alignment.Center
+                        )
+                        {
+                            Text("NO PIC")
+                        }
+                    }
+
 
                     Spacer(modifier = Modifier.width(12.dp))
 
