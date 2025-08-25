@@ -29,6 +29,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,16 +39,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 
 @Composable
-fun Home(NavigateToHome: () -> Unit, NavigateToProfile: () -> Unit, viewModel: userViewModel) {
+fun Home(NavigateToTask: () -> Unit, NavigateToProfile: () -> Unit, viewModel: userViewModel= viewModel()) {
     val user = UserSession.currentUser
-    LaunchedEffect(user?.email) {
+    val list by viewModel.getall.collectAsState(initial = emptyList())
+    /*LaunchedEffect(user?.email) {
         user?.let {
             viewModel.loadTasks(it.email)
         }
-    }
+    }*/
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -116,7 +121,7 @@ fun Home(NavigateToHome: () -> Unit, NavigateToProfile: () -> Unit, viewModel: u
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(Responsible.savedlist) { task ->
+                items(list) { task ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         elevation = CardDefaults.cardElevation(6.dp),
@@ -145,7 +150,7 @@ fun Home(NavigateToHome: () -> Unit, NavigateToProfile: () -> Unit, viewModel: u
 
 
         FloatingActionButton(
-            onClick = { NavigateToHome() },
+            onClick = { NavigateToTask() },
             containerColor = Color.Black,
             contentColor = Color.White,
             modifier = Modifier

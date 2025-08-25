@@ -6,11 +6,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.taskmanager.data.Repository
 import com.example.taskmanager.data.TaskEntity
 import com.example.taskmanager.data.UserEntity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-
+import okhttp3.internal.concurrent.Task
 
 
 class userViewModel(private val repo: Repository=Graph.userRepository, ): ViewModel() {
+    private val _tasks = MutableStateFlow<List<TaskEntity>>(emptyList())
+    val get: MutableStateFlow<List<TaskEntity>> = _tasks
     fun  register(user: UserEntity, onResult:(Boolean, String)-> Unit){
         viewModelScope.launch {
             val success=repo.registerUser(user)
@@ -34,27 +39,24 @@ class userViewModel(private val repo: Repository=Graph.userRepository, ): ViewMo
         }
     }
 
-
-    fun loadTasks(userEmail: String) {
+    lateinit var getall:Flow<List<TaskEntity>>
+    init {
+        getall = repo.getAllTask()
+    }
+   /* fun loadTasks(userEmail: String) {
         viewModelScope.launch {
             val list = repo.getUserTasks(userEmail)
             Responsible.savedlist.clear()
             Responsible.savedlist.addAll(list)
         }
     }
+*/
 
-    // 🔹 Add Task
-    fun addTask(title: String, description: String, userEmail: String) {
-        viewModelScope.launch {
-            val task = TaskEntity(
-                title = title,
-                description = description,
-                userEmail = userEmail
-            )
-            repo.addTask(task)
-            Responsible.savedlist.add(task) // UI update
-        }
-    }
+   /* fun addTask(add: TaskEntity) {
+        val newTask = TaskEntity(title,  description)
+        _tasks.value = _tasks.value + newTask
+    }*/
+
 
 
     fun deletetask(taskId: Int) {

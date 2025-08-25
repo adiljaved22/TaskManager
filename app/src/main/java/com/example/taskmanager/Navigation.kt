@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.taskmanager.TaskEntity.AddTask
 
 
 @Composable
@@ -15,6 +16,7 @@ fun Navigation() {
         composable("LoginScreen") {
             LoginScreen(
                 NavigateToRegister = { navController.navigate("register") },
+                NavigateToHome = {navController.navigate("Home")},
                 NavigateTOLogin = { navController.navigate("Home") }, viewModel = userViewModel
             )
         }
@@ -23,11 +25,22 @@ fun Navigation() {
         }
         composable("Home") {
             Home(
-                NavigateToHome = { navController.navigate("Add") },
-                NavigateToProfile = { navController.navigate("Profile") }, viewModel = userViewModel)
+                NavigateToTask = { navController.navigate("Add") },
+                NavigateToProfile = { navController.navigate("Profile") }, viewModel = userViewModel
+            )
         }
         composable("Profile") {
-            ProfileScreen(/*onBack = { navController.popBackStack() }*/ onLogout = {navController.navigate("LoginScreen")})
+            ProfileScreen(
+                onLogout =
+                    { navController.navigate("LoginScreen")
+                    {
+                        popUpTo(0){
+                        inclusive=false
+                        }
+                      launchSingleTop=true
+                    }
+                    }
+            )
         }
         composable("Add") {
             AddTask(onBack = { navController.popBackStack() }, viewModel = userViewModel)

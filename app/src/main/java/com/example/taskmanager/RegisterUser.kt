@@ -46,6 +46,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.taskmanager.data.UserEntity
+import java.nio.file.WatchEvent
 
 import java.util.Calendar
 import kotlin.math.sin
@@ -207,7 +208,7 @@ var passwordVisible by remember { mutableStateOf(false) }
             })
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
+        Button(modifier = Modifier.fillMaxWidth().padding(start = 50.dp, end = 50.dp),
             onClick =
                 {
                     emailError = when {
@@ -247,7 +248,7 @@ var passwordVisible by remember { mutableStateOf(false) }
                         }
                     }
 
-                }, modifier = Modifier.fillMaxWidth()
+                },
         ) {
             Text("Register")
         }

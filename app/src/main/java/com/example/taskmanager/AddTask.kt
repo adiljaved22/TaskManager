@@ -1,4 +1,5 @@
-package com.example.taskmanager
+package com.example.taskmanager.TaskEntity
+
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -16,12 +17,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.taskmanager.userViewModel
 
 @Composable
-fun AddTask(viewModel: userViewModel, onBack: () -> Unit) {
-    val context = LocalContext.current
-    val user = UserSession.currentUser ?: return
+fun AddTask(viewModel: userViewModel = viewModel(), onBack: () -> Unit) {
 
+val context=LocalContext.current
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
 
@@ -55,7 +57,7 @@ fun AddTask(viewModel: userViewModel, onBack: () -> Unit) {
         Button(onClick = {
             if (title.isNotBlank() && description.isNotBlank()) {
 
-                viewModel.addTask(title,description, userEmail = user.email)
+               /* viewModel.addTask(title,description)*/
 
 
                 title = ""

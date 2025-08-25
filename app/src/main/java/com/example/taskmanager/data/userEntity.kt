@@ -1,5 +1,6 @@
 package com.example.taskmanager.data
 
+import android.R.attr.id
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -9,7 +10,7 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = UserEntity::class,
             parentColumns = ["email"],
-            childColumns = ["userEmail"],
+            childColumns = ["id"],
             onDelete = ForeignKey.CASCADE
         )
     ]
@@ -19,7 +20,7 @@ data class TaskEntity(
     val id: Int = 0,
     val title: String,
     val description: String,
-    val userEmail: String
+/*    val userEmail: String*/
 )
 @Entity("users")
 data class UserEntity(

@@ -1,38 +1,18 @@
 package com.example.taskmanager
-
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material3.Button
-
 import androidx.compose.material.icons.rounded.Email
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Unspecified
 import androidx.compose.ui.platform.LocalContext
@@ -41,111 +21,139 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
-
-
 @Composable
-fun LoginScreen(NavigateToRegister:()-> Unit,NavigateTOLogin:()-> Unit,viewModel: userViewModel) {
+fun LoginScreen(
+    NavigateToRegister: () -> Unit,
+    NavigateTOLogin:()-> Unit ,
+    NavigateToHome:()->Unit,
+
+    viewModel: userViewModel
+
+
+) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(8.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Login", fontWeight = FontWeight.Bold)
-        var context= LocalContext.current
+
+        val context = LocalContext.current
         var email by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var emailError by rememberSaveable { mutableStateOf("") }
         var passwordError by rememberSaveable { mutableStateOf("") }
         var passwordVisible by remember { mutableStateOf(false) }
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            singleLine = true,
-            label = {
-                Text(
-                    text = emailError.ifEmpty { "Email" },
-                    color = if (emailError.isNotEmpty()) Red else Unspecified
-                )
-            },
-            leadingIcon = { Icon(Icons.Rounded.Email, contentDescription = null) },
-            modifier = Modifier.fillMaxWidth()
-        )
+        val sessionManager = SessionManager(context)
+        var isLoggedIn by remember { mutableStateOf(sessionManager.isLoggedIn()) }
+        if (isLoggedIn) {
+            val user = UserSession.currentUser
+            NavigateToHome()
+        } else {
 
-        Spacer(modifier = Modifier.height(12.dp))
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                singleLine = true,
+                label = {
+                    Text(
+                        text = emailError.ifEmpty { "Email" },
+                        color = if (emailError.isNotEmpty()) Red else Unspecified
+                    )
+                },
+                leadingIcon = { Icon(Icons.Rounded.Email, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            singleLine = true,
-            label = {
-                Text(
-                    text = passwordError.ifEmpty { "Password" },
-                    color = if (passwordError.isNotEmpty()) Red else Unspecified
-                )
-            },
-            leadingIcon = { Icon(Icons.Rounded.Lock, contentDescription = null) },
-            visualTransformation =
-                if (passwordVisible) {
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                singleLine = true,
+                label = {
+                    Text(
+                        text = passwordError.ifEmpty { "Password" },
+                        color = if (passwordError.isNotEmpty()) Red else Unspecified
+                    )
+                },
+                leadingIcon = { Icon(Icons.Rounded.Lock, contentDescription = null) },
+                visualTransformation = if (passwordVisible) {
                     VisualTransformation.None
-
                 } else {
                     PasswordVisualTransformation('*')
                 },
-            trailingIcon = {
-                val visibilityIcon =
-                    if (passwordVisible) {
-                        Icons.Filled.Visibility
-                    } else {
-                        Icons.Filled.VisibilityOff
+                trailingIcon = {
+                    val visibilityIcon =
+                        if (passwordVisible) Icons.Filled.Visibility
+                        else Icons.Filled.VisibilityOff
+
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(imageVector = visibilityIcon, contentDescription = null)
                     }
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = visibilityIcon, contentDescription = null)
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(
-            onClick = {
-                emailError = when {
-                    email.isBlank() -> "Email is required"
-                    !isValidEmail(email) -> "Invalid Email"
-                    else -> ""
-                }
-                passwordError = when {
-                    password.isBlank() -> "password is required"
-                    password.length < 6 -> "Password must be at least 6 characters"
-                    else -> ""
-                }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                if (emailError.isEmpty() && passwordError.isEmpty()) {
-                    viewModel.login(email, password) { success, message, user ->
-                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                        if (success && user != null) {
-                            UserSession.currentUser = user
+            Spacer(modifier = Modifier.height(12.dp))
 
-                            NavigateTOLogin()
+
+            Button(
+                onClick = {
+
+                    emailError = when {
+                        email.isBlank() -> "Email is required"
+                        !isValidEmail(email) -> "Invalid Email"
+                        else -> ""
+                    }
+                    passwordError = when {
+                        password.isBlank() -> "Password is required"
+                        password.length < 6 -> "Password must be at least 6 characters"
+                        else -> ""
+                    }
+
+
+                    if (emailError.isEmpty() && passwordError.isEmpty()) {
+                        viewModel.login(email, password) { success, message, user ->
+                            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                            val sessionManager = SessionManager(context)
+
+                            if (success && user != null) {
+                                sessionManager.saveLogin(user.email, user.username ,user.imageuri)
+                                UserSession.currentUser = user
+                               NavigateTOLogin()
+                            } else {
+                                Toast.makeText(context, "Login Failed", Toast.LENGTH_LONG).show()
+                            }
                         }
+                    } else {
+                        Toast.makeText(context, "Login Unsuccessful", Toast.LENGTH_LONG).show()
                     }
-                } else {
-                    Toast.makeText(context, "Login Unsuccessful", Toast.LENGTH_LONG).show()
                 }
+            ) {
+                Text("Login")
+            }
 
+            Spacer(modifier = Modifier.height(12.dp))
 
-            },
-
-
-        ) {
-            Text("Login")
+            Row {
+                Text("Not a Member? ")
+                Text(
+                    "Sign Up",
+                    modifier = Modifier.clickable {
+                        NavigateToRegister()
+                    },
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
 
         }
-        Spacer(modifier = Modifier.height(12.dp))
-        Row{
-            Text("Not a Member?")
-            Text("Sign Up", modifier = Modifier.clickable{
-                NavigateToRegister()
-            })
-        }
+
+
+
+
     }
 }
 fun isValidEmail(email: String): Boolean {
