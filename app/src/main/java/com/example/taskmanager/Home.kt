@@ -51,6 +51,7 @@ fun Home(
 ) {
  /*   val user by viewModel.getUser().collectAsState(initial = null)*/
     val list by viewModel.getall.collectAsState(initial = emptyList())
+    val users by viewModel.getUser().collectAsState(initial = null)
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
 
@@ -59,17 +60,18 @@ fun Home(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-           /* Image(
-                painter = rememberAsyncImagePainter(imageUri),
-                contentDescription = "Profile Image",
-                modifier = Modifier
-                    .size(70.dp)
-                    .clip(CircleShape)
-                    .clickable { NavigateToProfile() },
-                contentScale = ContentScale.Crop
-            )*/
+            if (users?.imageUri != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(users?.imageUri),
+                    contentDescription = "Profile Image",
+                    modifier = Modifier
+                        .size(70.dp)
+                        .clip(CircleShape)
+                        .clickable { NavigateToProfile() },
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
-
         Spacer(modifier = Modifier.height(16.dp))
 
 

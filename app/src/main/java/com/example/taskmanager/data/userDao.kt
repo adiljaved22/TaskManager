@@ -11,8 +11,8 @@ interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun registerUser(user: UserEntity)
-  /*  @Query("SELECT * FROM users LIMIT 1")
-    fun getSingleUser(): Flow<UserEntity?>*/
+    @Query("SELECT * FROM users LIMIT 1")
+    fun getSingleUser(): Flow<UserEntity?>
 
 
     @Query("SELECT * FROM users WHERE email = :email AND password = :password LIMIT 1")

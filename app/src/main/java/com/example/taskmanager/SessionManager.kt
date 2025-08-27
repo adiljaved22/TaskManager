@@ -1,4 +1,4 @@
-/*
+
 package com.example.taskmanager
 
 import android.content.Context
@@ -6,11 +6,12 @@ import android.content.Context
 class SessionManager(context: Context) {
     private val prefs = context.getSharedPreferences("session", Context.MODE_PRIVATE)
 
-    fun saveLogin(email: String, username: String, imageuri: String) {
+    fun saveLogin() : Boolean {
         prefs.edit().apply {
             putBoolean("is_log_in", true)
             apply()
         }
+        return true
     }
 
     fun saveBooleanValues(key: String, value: Boolean) {
@@ -42,4 +43,4 @@ class SessionManager(context: Context) {
     }
 }
 
-*/
+

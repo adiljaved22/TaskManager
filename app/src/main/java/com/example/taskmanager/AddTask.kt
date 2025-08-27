@@ -23,7 +23,7 @@ import com.example.taskmanager.userViewModel
 
 @Composable
 fun AddTask(viewModel: userViewModel = viewModel(), onBack: () -> Unit) {
-/*val user by viewModel.getUser().collectAsState(initial = null)*/
+val user by viewModel.getUser().collectAsState(initial = null)
     val context = LocalContext.current
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }

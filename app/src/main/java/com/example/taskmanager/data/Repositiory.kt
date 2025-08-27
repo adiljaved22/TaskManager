@@ -4,9 +4,9 @@ import kotlinx.coroutines.flow.Flow
 
 
 class Repository(private val newDao: UserDao, private val taskDao: TaskDao) {
-    /*fun getUser(): Flow<UserEntity?> {
+    fun getUser(): Flow<UserEntity?> {
         return newDao.getSingleUser()
-    }*/
+    }
         suspend fun addTask(task: TaskEntity) = taskDao.insertTask(task)
 
         /* suspend fun getUserTasks(userEmail: String) = taskDao.getUserTasks(userEmail)*/
