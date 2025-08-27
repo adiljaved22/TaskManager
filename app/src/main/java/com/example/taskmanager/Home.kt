@@ -70,6 +70,9 @@ fun Home(
                         .clickable { NavigateToProfile() },
                     contentScale = ContentScale.Crop
                 )
+                users?.let {
+                    Text(it.username)
+                }
             }
         }
         Spacer(modifier = Modifier.height(16.dp))

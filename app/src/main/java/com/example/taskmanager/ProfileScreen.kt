@@ -30,8 +30,8 @@ import coil.compose.rememberAsyncImagePainter
 
 
 @Composable
-fun ProfileScreen(onLogout:()-> Unit, viewModel: userViewModel = viewModel()) {/*
-    val user by viewModel.getUser().collectAsState(initial = null)*/
+fun ProfileScreen(onLogout:()-> Unit, viewModel: userViewModel = viewModel()) {
+    val users by viewModel.getUser().collectAsState(initial = null)
 
     Column(
         modifier = Modifier
@@ -41,20 +41,19 @@ fun ProfileScreen(onLogout:()-> Unit, viewModel: userViewModel = viewModel()) {/
         verticalArrangement = Arrangement.Center
     ) {
 
-      /*  Image(
- *//*           painter = rememberAsyncImagePainter(user?.imageUri)*//*,
+       Image(
+         painter = rememberAsyncImagePainter(users?.imageUri),
             contentDescription = "Profile Image",
             modifier = Modifier
-                .size(120.dp)
+                .size(200.dp)
                 .clip(CircleShape),
             contentScale = ContentScale.Crop
-        )*/
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        /*Text(text = user?.username ?: "Unknown", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-        Text(text = user?.email ?: "No Email")
-        Text(text = user?.dateOfBirth?: "DOB not set")*/
+users?.let { Text(it.username,fontWeight = FontWeight.Bold, fontSize = 35.sp) }
+        users?.let { Text(it.email)}
+        users?.let { Text(it.dateOfBirth.toString())}
 
         Spacer(modifier = Modifier.height(24.dp))
 
