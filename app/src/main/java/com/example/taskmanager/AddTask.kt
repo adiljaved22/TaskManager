@@ -18,12 +18,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.taskmanager.data.TaskEntity
 import com.example.taskmanager.userViewModel
 
 @Composable
 fun AddTask(viewModel: userViewModel = viewModel(), onBack: () -> Unit) {
-
-val context=LocalContext.current
+/*val user by viewModel.getUser().collectAsState(initial = null)*/
+    val context = LocalContext.current
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
 
@@ -57,9 +58,9 @@ val context=LocalContext.current
         Button(onClick = {
             if (title.isNotBlank() && description.isNotBlank()) {
 
-               /* viewModel.addTask(title,description)*/
+                val newtask = TaskEntity(title = title, description = description)
 
-
+                viewModel.addTask(newtask)
                 title = ""
                 description = ""
 

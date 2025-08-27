@@ -9,8 +9,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UserDao {
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun registerUser(user: UserEntity)
+  /*  @Query("SELECT * FROM users LIMIT 1")
+    fun getSingleUser(): Flow<UserEntity?>*/
+
 
     @Query("SELECT * FROM users WHERE email = :email AND password = :password LIMIT 1")
     suspend fun loginUser(email: String, password: String): UserEntity?
@@ -33,3 +36,5 @@ interface TaskDao {
     @Query("DELETE FROM tasks WHERE id = :taskId")
     suspend fun deleteTask(taskId: Int)
 }
+
+

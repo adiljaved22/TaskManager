@@ -42,122 +42,81 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 
+
 @Composable
-fun Home(NavigateToTask: () -> Unit, NavigateToProfile: () -> Unit, viewModel: userViewModel= viewModel()) {
-    val user = UserSession.currentUser
+fun Home(
+    NavigateToTask: () -> Unit,
+    NavigateToProfile: () -> Unit,
+    viewModel: userViewModel = viewModel()
+) {
+ /*   val user by viewModel.getUser().collectAsState(initial = null)*/
     val list by viewModel.getall.collectAsState(initial = emptyList())
-    /*LaunchedEffect(user?.email) {
-        user?.let {
-            viewModel.loadTasks(it.email)
-        }
-    }*/
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-
-            val user = UserSession.currentUser
-            if (user != null) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (!user.imageuri.isNullOrEmpty()) {
-
-                        Image(
-                            painter = rememberAsyncImagePainter(Uri.parse(user.imageuri)),
-                            contentDescription = "Profile Image",
-                            modifier = Modifier
-                                .size(70.dp)
-                                .clip(CircleShape)
-                                .clickable { NavigateToProfile() },
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Box(modifier = Modifier
-                            .size(70.dp)
-                            .clip(CircleShape)
-                            .background(Color.Gray),
-                            contentAlignment = Alignment.Center
-                        )
-                        {
-                            Text("NO PIC")
-                        }
-                    }
-
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Column {
-                        Text(
-                            text = user.username,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                    }
-                }
-            }
-
-            Row(
+           /* Image(
+                painter = rememberAsyncImagePainter(imageUri),
+                contentDescription = "Profile Image",
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    "Tasks",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 22.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(5.dp))
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(list) { task ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(6.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .padding(16.dp)
-                        ) {
-                            Text(
-                                task.title,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                task.description,
-                                fontSize = 15.sp,
-                                color = Color.DarkGray
-                            )
-                        }
+                    .size(70.dp)
+                    .clip(CircleShape)
+                    .clickable { NavigateToProfile() },
+                contentScale = ContentScale.Crop
+            )*/
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text("Tasks", fontWeight = FontWeight.Bold, fontSize = 22.sp)
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(list) { task ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(6.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(task.title, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(task.description, fontSize = 15.sp, color = Color.DarkGray)
                     }
                 }
             }
         }
+    }
 
 
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomEnd
+    ) {
         FloatingActionButton(
             onClick = { NavigateToTask() },
             containerColor = Color.Black,
             contentColor = Color.White,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             Icon(Icons.Filled.Add, contentDescription = "Add Task")
         }
     }
 }
+/*LaunchedEffect(user?.email) {
+        user?.let {
+            viewModel.loadTasks(it.email)
+        }
+    }*/

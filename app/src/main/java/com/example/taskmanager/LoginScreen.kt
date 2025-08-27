@@ -46,12 +46,12 @@ fun LoginScreen(
         var emailError by rememberSaveable { mutableStateOf("") }
         var passwordError by rememberSaveable { mutableStateOf("") }
         var passwordVisible by remember { mutableStateOf(false) }
-        val sessionManager = SessionManager(context)
-        var isLoggedIn by remember { mutableStateOf(sessionManager.isLoggedIn()) }
-        if (isLoggedIn) {
+      /*  val sessionManager = SessionManager(context)*/
+       /* var isLoggedIn by remember { mutableStateOf(sessionManager.isLoggedIn()) }*/
+        /*if (isLoggedIn) {
             val user = UserSession.currentUser
             NavigateToHome()
-        } else {
+        } *//*else {*/
 
             OutlinedTextField(
                 value = email,
@@ -118,10 +118,10 @@ fun LoginScreen(
                     if (emailError.isEmpty() && passwordError.isEmpty()) {
                         viewModel.login(email, password) { success, message, user ->
                             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                            val sessionManager = SessionManager(context)
+                            /*val sessionManager = SessionManager(context)*/
 
                             if (success && user != null) {
-                                sessionManager.saveLogin(user.email, user.username ,user.imageuri)
+                              /*  sessionManager.saveLogin(user.email, user.username ,user.imageuri)*/
                                 UserSession.currentUser = user
                                NavigateTOLogin()
                             } else {
@@ -155,7 +155,7 @@ fun LoginScreen(
 
 
     }
-}
+
 fun isValidEmail(email: String): Boolean {
     return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
 }

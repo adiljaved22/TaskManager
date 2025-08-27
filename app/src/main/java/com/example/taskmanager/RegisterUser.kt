@@ -231,18 +231,18 @@ var passwordVisible by remember { mutableStateOf(false) }
 
                     else {
                         val imageUri=selectedImage?.toString()?:""
+
                         val user = UserEntity(
                             username = username,
                             email = email,
                             password = password,
-                            imageuri = imageUri,
-                            dateofbirth = DOB
+                            imageUri = imageUri,
+                            dateOfBirth = DOB
                         )
 
                         viewModel.register(user) { success, message ->
                             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                             if (success) {
-                                UserSession.currentUser= user
                                 onBack()
                             }
                         }

@@ -1,33 +1,23 @@
 package com.example.taskmanager.data
 
-import android.R.attr.id
+
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-@Entity(
-    tableName = "tasks",
-    foreignKeys = [
-        ForeignKey(
-            entity = UserEntity::class,
-            parentColumns = ["email"],
-            childColumns = ["id"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
-)
+
+@Entity(tableName = "tasks")
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val title: String,
-    val description: String,
-/*    val userEmail: String*/
+    val description: String
 )
-@Entity("users")
+
+@Entity(tableName = "users")
 data class UserEntity(
     @PrimaryKey
     val email: String,
-    val password : String,
-    val username: String,
-    val imageuri: String,
-    val dateofbirth:String?=null
+    val password: String,
+    val username: String = "",
+    val imageUri: String? = null,
+    val dateOfBirth: String? = null
 )
