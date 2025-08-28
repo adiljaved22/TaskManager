@@ -104,7 +104,9 @@ fun Home(
                     elevation = CardDefaults.cardElevation(6.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
+
                     Column(modifier = Modifier.padding(16.dp)) {
+                        viewModel.edit(task.id)
                         Text(task.title, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(task.description, fontSize = 15.sp, color = Color.DarkGray)

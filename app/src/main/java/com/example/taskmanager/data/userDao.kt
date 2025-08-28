@@ -12,6 +12,7 @@ interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun registerUser(user: UserEntity)
+
     @Query("SELECT * FROM users LIMIT 1")
     fun getSingleUser(): Flow<UserEntity?>
 
@@ -31,13 +32,17 @@ interface TaskDao {
 
     @Query("SELECT * FROM tasks")
     fun getAllTask(): Flow<List<TaskEntity>>
-/*    @Query("SELECT * FROM tasks WHERE userEmail = :email")
-    suspend fun getUserTasks(email: String): List<TaskEntity>*/
-@Update
-suspend fun updateTask(task: TaskEntity)
 
-@Query("SELECT * from `tasks` WHERE id=:taskId")
-  fun editbyid(taskId: Int): Flow<TaskEntity>
+    /*    @Query("SELECT * FROM tasks WHERE userEmail = :email")
+        suspend fun getUserTasks(email: String): List<TaskEntity>*/
+    @Update
+    suspend fun updateTask(task: TaskEntity)
+
+    @Query("Update tasks SET title= :newTitle, description=:newDescription WHERE id =:taskId")
+    suspend fun update(taskId: Int, newTitle : String, newDescription: String)
+
+    fun editbyid(taskId: Int): Flow<TaskEntity>
+
     @Query("DELETE FROM tasks WHERE id = :taskId")
     suspend fun deleteTask(taskId: Int)
 }
