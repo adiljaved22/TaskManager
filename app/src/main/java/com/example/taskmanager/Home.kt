@@ -22,15 +22,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,12 +47,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.taskmanager.data.TaskEntity
 
 
 @Composable
 fun Home(
     NavigateToTask: () -> Unit,
     NavigateToProfile: () -> Unit,
+    NavigateToEdit:()-> Unit,
     viewModel: userViewModel = viewModel()
 ) {
  /*   val user by viewModel.getUser().collectAsState(initial = null)*/
@@ -68,10 +76,11 @@ fun Home(
                         .size(70.dp)
                         .clip(CircleShape)
                         .clickable { NavigateToProfile() },
-                    contentScale = ContentScale.Crop
+                   /* contentScale = ContentScale.Crop*/
                 )
+                Spacer(modifier = Modifier.width(8.dp))
                 users?.let {
-                    Text(it.username)
+                    Text(it.username, fontWeight = FontWeight.Medium)
                 }
             }
         }
@@ -100,18 +109,28 @@ fun Home(
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(task.description, fontSize = 15.sp, color = Color.DarkGray)
                     }
-                }
-            }
+                }            }
         }
     }
 
+
+@Composable
+fun icons(it: TaskEntity) {
+    Row(modifier = Modifier.padding(8.dp)) {
+        IconButton(onClick ={ NavigateToEdit()}) {
+            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+        }
+        /*IconButton(onClick = ondeleteclick) {
+            Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+        }*/
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomEnd
     ) {
         FloatingActionButton(
-            onClick = { NavigateToTask() },
+            onClick =  {NavigateToTask() },
             containerColor = Color.Black,
             contentColor = Color.White,
             modifier = Modifier.padding(16.dp)
@@ -119,6 +138,7 @@ fun Home(
             Icon(Icons.Filled.Add, contentDescription = "Add Task")
         }
     }
+}
 }
 /*LaunchedEffect(user?.email) {
         user?.let {

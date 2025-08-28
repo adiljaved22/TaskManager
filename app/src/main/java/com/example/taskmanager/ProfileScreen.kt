@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +33,8 @@ import coil.compose.rememberAsyncImagePainter
 @Composable
 fun ProfileScreen(onLogout:()-> Unit, viewModel: userViewModel = viewModel()) {
     val users by viewModel.getUser().collectAsState(initial = null)
+    val context= LocalContext.current
+    val sessionManager = SessionManager(context)
 
     Column(
         modifier = Modifier
@@ -47,7 +50,7 @@ fun ProfileScreen(onLogout:()-> Unit, viewModel: userViewModel = viewModel()) {
             modifier = Modifier
                 .size(200.dp)
                 .clip(CircleShape),
-            contentScale = ContentScale.Crop
+          /*  contentScale = ContentScale.Crop*/
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -59,10 +62,12 @@ users?.let { Text(it.username,fontWeight = FontWeight.Bold, fontSize = 35.sp) }
 
 
         Button(onClick = {
-
+sessionManager.logout()
      onLogout()
  }) {
+
      Text("Logout")
+
  }
 
     }

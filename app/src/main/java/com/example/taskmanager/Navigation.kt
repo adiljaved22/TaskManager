@@ -1,5 +1,6 @@
 package com.example.taskmanager
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,7 +24,9 @@ fun Navigation() {
         composable("Home") {
             Home(
                 NavigateToTask = { navController.navigate("Add") },
-                NavigateToProfile = { navController.navigate("Profile") }, viewModel = userViewModel
+                NavigateToProfile = { navController.navigate("Profile") },
+                 NavigateToEdit = {navController.navigate("edit")},
+                viewModel = userViewModel
             )
         }
         composable("Profile") {
@@ -41,6 +44,20 @@ fun Navigation() {
         }
         composable("Add") {
             AddTask(onBack = { navController.popBackStack() }, viewModel = userViewModel)
+        }
+
+        composable("edit/{taskId}") { backStackEntry ->
+            val taskId = backStackEntry.arguments?.getString("taskId")?.toInt() ?: 0
+            val task = userViewModel.getall.collectAsState(initial = emptyList()).value
+                .firstOrNull { it.id == taskId }
+
+            task?.let {
+                Edit(
+                    ItemToBeEdit = it,
+                    NavigateToEdit = { navController.popBackStack() },
+                    viewModel = userViewModel
+                )
+            }
         }
 
     }

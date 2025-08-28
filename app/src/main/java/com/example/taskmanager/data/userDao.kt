@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -32,7 +33,11 @@ interface TaskDao {
     fun getAllTask(): Flow<List<TaskEntity>>
 /*    @Query("SELECT * FROM tasks WHERE userEmail = :email")
     suspend fun getUserTasks(email: String): List<TaskEntity>*/
+@Update
+suspend fun updateTask(task: TaskEntity)
 
+@Query("SELECT * from `tasks` WHERE id=:taskId")
+  fun editbyid(taskId: Int): Flow<TaskEntity>
     @Query("DELETE FROM tasks WHERE id = :taskId")
     suspend fun deleteTask(taskId: Int)
 }
