@@ -35,16 +35,12 @@ interface TaskDao {
 
     /*    @Query("SELECT * FROM tasks WHERE userEmail = :email")
         suspend fun getUserTasks(email: String): List<TaskEntity>*/
-    @Update
-    suspend fun updateTask(task: TaskEntity)
 
     @Query("Update tasks SET title= :newTitle, description=:newDescription WHERE id =:taskId")
     suspend fun update(taskId: Int, newTitle : String, newDescription: String)
 
-    fun editbyid(taskId: Int): Flow<TaskEntity>
+
 
     @Query("DELETE FROM tasks WHERE id = :taskId")
     suspend fun deleteTask(taskId: Int)
 }
-
-

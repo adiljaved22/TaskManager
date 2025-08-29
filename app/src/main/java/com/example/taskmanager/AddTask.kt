@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
@@ -40,6 +41,7 @@ val user by viewModel.getUser().collectAsState(initial = null)
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
+        Spacer(modifier = Modifier.height(5.dp))
 
         OutlinedTextField(
             value = title,
@@ -55,7 +57,9 @@ val user by viewModel.getUser().collectAsState(initial = null)
             label = { Text("Description") }
         )
 
-        Button(onClick = {
+        Button(
+            onClick = {
+
             if (title.isNotBlank() && description.isNotBlank()) {
 
                 val newtask = TaskEntity(title = title, description = description)
@@ -69,7 +73,12 @@ val user by viewModel.getUser().collectAsState(initial = null)
             } else {
                 Toast.makeText(context, "Fill All Blanks", Toast.LENGTH_LONG).show()
             }
-        }) {
+
+        }
+
+        )
+
+        {
             Text("Add", fontSize = 21.sp)
         }
     }

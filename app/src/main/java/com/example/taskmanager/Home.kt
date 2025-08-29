@@ -1,12 +1,15 @@
 package com.example.taskmanager
 
+import android.app.Activity
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +27,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -41,8 +46,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -54,16 +62,14 @@ import com.example.taskmanager.data.TaskEntity
 fun Home(
     NavigateToTask: () -> Unit,
     NavigateToProfile: () -> Unit,
-    NavigateToEdit:()-> Unit,
+    NavigateToEdit:(String)-> Unit,
+    onBack:()->Unit,
     viewModel: userViewModel = viewModel()
 ) {
- /*   val user by viewModel.getUser().collectAsState(initial = null)*/
+    var dialogBox by remember { mutableStateOf(false) }
     val list by viewModel.getall.collectAsState(initial = emptyList())
     val users by viewModel.getUser().collectAsState(initial = null)
-
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -76,7 +82,6 @@ fun Home(
                         .size(70.dp)
                         .clip(CircleShape)
                         .clickable { NavigateToProfile() },
-                   /* contentScale = ContentScale.Crop*/
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 users?.let {
@@ -85,19 +90,17 @@ fun Home(
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text("Tasks", fontWeight = FontWeight.Bold, fontSize = 22.sp)
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)
+            ,contentPadding = PaddingValues(bottom = 10.dp)) {
             items(list) { task ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -105,43 +108,72 @@ fun Home(
                     shape = RoundedCornerShape(12.dp)
                 ) {
 
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        viewModel.edit(task.id)
-                        Text(task.title, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(task.description, fontSize = 15.sp, color = Color.DarkGray)
+                    Row(modifier = Modifier.fillMaxWidth().padding(18.dp))
+                    {
+                        Column(
+                            modifier = Modifier.weight(1f)) {
+
+                            Text(task.title, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(task.description, fontSize = 15.sp)
+                        }
+                        IconButton(onClick = {NavigateToEdit("edit/${task.id}")}) {
+
+                            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                        }
+                        if (dialogBox) {
+                            AlertDialog(
+                                onDismissRequest = { dialogBox = false },
+                                title = { Text("Are you want To delete this item? ") },
+
+                                confirmButton = {
+                                    Button(onClick = {
+                                        viewModel.delete(
+                                            task.id
+                                        )
+                                        dialogBox = false
+                                    }) {
+                                        Text("Confirm")
+                                    }
+                                },
+
+                                dismissButton = {
+                                    Button(onClick = { dialogBox = false }) {
+                                        Text("Dismiss")
+                                    }
+                                }
+                            )
+
+                        }
+                        IconButton(onClick = { dialogBox = true }) {
+                            Icon(Icons.Default.Delete, contentDescription = null)
+                        }
                     }
-                }            }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
+        Spacer(modifier = Modifier.height(12.dp))
     }
-
-
-@Composable
-fun icons(it: TaskEntity) {
-    Row(modifier = Modifier.padding(8.dp)) {
-        IconButton(onClick ={ NavigateToEdit()}) {
-            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
-        }
-        /*IconButton(onClick = ondeleteclick) {
-            Icon(imageVector = Icons.Default.Delete, contentDescription = null)
-        }*/
-    }
-
     Box(
-        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomEnd
     ) {
+
         FloatingActionButton(
-            onClick =  {NavigateToTask() },
+            onClick = { NavigateToTask() },
             containerColor = Color.Black,
             contentColor = Color.White,
             modifier = Modifier.padding(16.dp)
         ) {
             Icon(Icons.Filled.Add, contentDescription = "Add Task")
         }
+
     }
+
+
 }
-}
+
+
 /*LaunchedEffect(user?.email) {
         user?.let {
             viewModel.loadTasks(it.email)

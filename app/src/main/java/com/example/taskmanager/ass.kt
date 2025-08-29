@@ -1,16 +1,19 @@
 /*
-composable("edit/{taskId}") { backStackEntry ->
-    val taskId = backStackEntry.arguments?.getString("taskId")?.toInt() ?: 0
-    val task = userViewModel.getall.collectAsState(initial = emptyList()).value
-        .firstOrNull { it.id == taskId }
+IconButton(onClick = { dialogBox = true; selectedTaskId = task.id }) { ... }
 
-    task?.let {
-        Edit(
-            itemToBeEdit = it,
-            onEditComplete = { navController.popBackStack() },
-            NavigateToEdit = { navController.popBackStack() },
-            viewModel = userViewModel
-        )
-    }
+if (dialogBox) {
+    AlertDialog(
+        onDismissRequest = { dialogBox = false },
+        title = { Text("Are you want To delete this item? ") },
+        confirmButton = {
+            Button(onClick = {
+                selectedTaskId?.let { viewModel.delete(it) }
+                dialogBox = false
+            }) { Text("Confirm") }
+        },
+        dismissButton = {
+            Button(onClick = { dialogBox = false }) { Text("Dismiss") }
+        }
+    )
 }
 */

@@ -31,9 +31,9 @@ import coil.compose.rememberAsyncImagePainter
 
 
 @Composable
-fun ProfileScreen(onLogout:()-> Unit, viewModel: userViewModel = viewModel()) {
+fun ProfileScreen(onLogout: () -> Unit, viewModel: userViewModel = viewModel()) {
     val users by viewModel.getUser().collectAsState(initial = null)
-    val context= LocalContext.current
+    val context = LocalContext.current
     val sessionManager = SessionManager(context)
 
     Column(
@@ -44,31 +44,31 @@ fun ProfileScreen(onLogout:()-> Unit, viewModel: userViewModel = viewModel()) {
         verticalArrangement = Arrangement.Center
     ) {
 
-       Image(
-         painter = rememberAsyncImagePainter(users?.imageUri),
+        Image(
+            painter = rememberAsyncImagePainter(users?.imageUri),
             contentDescription = "Profile Image",
             modifier = Modifier
                 .size(200.dp)
                 .clip(CircleShape),
-          /*  contentScale = ContentScale.Crop*/
+            /*  contentScale = ContentScale.Crop*/
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-users?.let { Text(it.username,fontWeight = FontWeight.Bold, fontSize = 35.sp) }
-        users?.let { Text(it.email)}
-        users?.let { Text(it.dateOfBirth.toString())}
+        users?.let { Text(it.username, fontWeight = FontWeight.Bold, fontSize = 35.sp) }
+        users?.let { Text(it.email) }
+        users?.let { Text(it.dateOfBirth.toString()) }
 
         Spacer(modifier = Modifier.height(24.dp))
 
 
         Button(onClick = {
-sessionManager.logout()
-     onLogout()
- }) {
+            sessionManager.logout()
+            onLogout()
+        }) {
 
-     Text("Logout")
+            Text("Logout")
 
- }
+        }
 
     }
 }

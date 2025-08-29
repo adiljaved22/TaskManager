@@ -8,9 +8,7 @@ import com.example.taskmanager.data.TaskEntity
 import com.example.taskmanager.data.UserEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import okhttp3.internal.concurrent.Task
 
 class userViewModel(private val repo: Repository = Graph.userRepository) : ViewModel() {
     private val _tasks = MutableStateFlow<List<TaskEntity>>(emptyList())
@@ -54,15 +52,15 @@ class userViewModel(private val repo: Repository = Graph.userRepository) : ViewM
             repo.addTask(task)
         }
     }
-
-    fun update(task: TaskEntity) {
-        viewModelScope.launch {
-            repo.update(task)
-        }
+    fun update(taskid: Int,newTitle: String,newDescription: String)
+    {
+        viewModelScope.launch{repo.update(taskid,newTitle,newDescription )}
     }
 
-    fun edit(taskId: Int) {
-        viewModelScope.launch { repo.getbyid(taskId) }
+    fun delete(taskid: Int){
+        viewModelScope.launch {
+            repo.deletetask(taskid)
+        }
     }
 
 

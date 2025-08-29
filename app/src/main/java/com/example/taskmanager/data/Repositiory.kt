@@ -9,15 +9,15 @@ class Repository(private val newDao: UserDao, private val taskDao: TaskDao) {
     }
 
     suspend fun addTask(task: TaskEntity) = taskDao.insertTask(task)
-    suspend fun update(task: TaskEntity) = taskDao.updateTask(task)
-  fun getbyid(taskId: Int): Flow<TaskEntity>{
-        return taskDao.editbyid(taskId)
-    }
+
 
     /* suspend fun getUserTasks(userEmail: String) = taskDao.getUserTasks(userEmail)*/
-     fun getAllTask(): Flow<List<TaskEntity>> {
+    fun getAllTask(): Flow<List<TaskEntity>> {
         return taskDao.getAllTask()
     }
+
+    suspend fun update(taskId: Int, newTitle: String, newDescription: String) =
+        taskDao.update(taskId, newTitle, newDescription)
 
     suspend fun deletetask(taskId: Int) = taskDao.deleteTask(taskId)
 

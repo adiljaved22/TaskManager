@@ -1,61 +1,72 @@
 package com.example.taskmanager
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.activity
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.taskmanager.TaskEntity.AddTask
+
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    val userViewModel: userViewModel = viewModel()
+    val viewModel: userViewModel = viewModel()
     NavHost(navController = navController, startDestination = "LoginScreen") {
         composable("LoginScreen") {
             LoginScreen(
                 NavigateToRegister = { navController.navigate("register") },
-                NavigateToHome = {navController.navigate("Home")},
-                NavigateTOLogin = { navController.navigate("Home") }, viewModel = userViewModel
+                NavigateToHome = { navController.navigate("Home") },
+                NavigateTOLogin = { navController.navigate("Home") }, viewModel = viewModel
             )
         }
         composable("register") {
-            RegisterUser(viewModel = userViewModel, onBack = { navController.popBackStack() })
+            RegisterUser(viewModel = viewModel, onBack = { navController.popBackStack() })
         }
         composable("Home") {
             Home(
                 NavigateToTask = { navController.navigate("Add") },
                 NavigateToProfile = { navController.navigate("Profile") },
-                 NavigateToEdit = {navController.navigate("edit")},
-                viewModel = userViewModel
-            )
+                NavigateToEdit = { route -> navController.navigate(route) },
+                onBack = { navController.popBackStack() },
+
+                viewModel = viewModel,
+
+                )
         }
         composable("Profile") {
             ProfileScreen(
                 onLogout =
-                    { navController.navigate("LoginScreen")
                     {
-                        popUpTo(0){
-                        inclusive=false
+                        navController.navigate("LoginScreen")
+                        {
+                            popUpTo(0) {
+                                inclusive = false
+                            }
+                            launchSingleTop = true
                         }
-                      launchSingleTop=true
-                    }
                     }
             )
         }
         composable("Add") {
-            AddTask(onBack = { navController.popBackStack() }, viewModel = userViewModel)
+            AddTask(onBack = { navController.popBackStack() }, viewModel = viewModel)
         }
 
-        composable("edit/{taskId}") { backStackEntry ->
-            val taskId = backStackEntry.arguments?.getString("taskId")?.toInt() ?: 0
-            val task = userViewModel.getall.collectAsState(initial = emptyList()).value
-                .firstOrNull { it.id == taskId }
-
+        composable(
+            "edit/{taskId}",
+            arguments = listOf(navArgument("taskId") { type = NavType.IntType })
+        ) { entry ->
+            val taskId = entry.arguments!!.getInt("taskId")
+            val task =
+                viewModel.getall.collectAsState(initial = emptyList()).value.find { it.id == taskId }
             task?.let {
                 Edit(
-                    ItemToBeEdit = it,
                     NavigateToEdit = { navController.popBackStack() },
-                    viewModel = userViewModel
+                    ItemToBeEdit = it,
+                    viewModel = viewModel
                 )
             }
         }

@@ -13,6 +13,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+
+
             TaskManagerTheme {
                 Surface(
                     modifier = Modifier

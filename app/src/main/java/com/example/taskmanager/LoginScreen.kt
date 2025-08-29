@@ -1,4 +1,6 @@
 package com.example.taskmanager
+
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,13 +27,21 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoginScreen(
     NavigateToRegister: () -> Unit,
-    NavigateTOLogin:()-> Unit ,
-    NavigateToHome:()->Unit,
+    NavigateTOLogin: () -> Unit,
+    NavigateToHome: () -> Unit,
 
     viewModel: userViewModel
 
 
 ) {
+    val context = LocalContext.current
+
+    val sessionManager = SessionManager(context)
+
+    var isLoggedIn by remember { mutableStateOf(sessionManager.isLoggedIn()) }
+
+    Log.e("loginscreen start", "${sessionManager.isLoggedIn()}")
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -41,18 +51,20 @@ fun LoginScreen(
     ) {
         Text("Login", fontWeight = FontWeight.Bold)
 
-        val context = LocalContext.current
         var email by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var emailError by rememberSaveable { mutableStateOf("") }
         var passwordError by rememberSaveable { mutableStateOf("") }
         var passwordVisible by remember { mutableStateOf(false) }
-        val sessionManager = SessionManager(context)
-       var isLoggedIn by remember { mutableStateOf(sessionManager.isLoggedIn()) }
-        if (isLoggedIn) {
+
+        if (sessionManager.isLoggedIn()) {
+            Log.e("loginscreen", "${sessionManager.isLoggedIn()}")
+            print("loginScreen=false")
             NavigateToHome()
         } else {
+            Log.e("loginscreen else", "${sessionManager.isLoggedIn()}")
 
+            print("loginScreen=true")
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -97,64 +109,62 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-            Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
 
-            Button(
-                onClick = {
+        Button(
+            onClick = {
 
-                    emailError = when {
-                        email.isBlank() -> "Email is required"
-                        !isValidEmail(email) -> "Invalid Email"
-                        else -> ""
-                    }
-                    passwordError = when {
-                        password.isBlank() -> "Password is required"
-                        password.length < 6 -> "Password must be at least 6 characters"
-                        else -> ""
-                    }
+                emailError = when {
+                    email.isBlank() -> "Email is required"
+                    !isValidEmail(email) -> "Invalid Email"
+                    else -> ""
+                }
+                passwordError = when {
+                    password.isBlank() -> "Password is required"
+                    password.length < 6 -> "Password must be at least 6 characters"
+                    else -> ""
+                }
 
 
-                    if (emailError.isEmpty() && passwordError.isEmpty()) {
-                        viewModel.login(email, password) { success, message, user ->
-                            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                if (emailError.isEmpty() && passwordError.isEmpty()) {
+                    viewModel.login(email, password) { success, message, user ->
+                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 //                            val sessionManager = SessionManager(context)
 
-                            if (success && user != null) {
-                                Toast.makeText(context, "Login Success", Toast.LENGTH_LONG).show()
-                                sessionManager.saveLogin()
-                                NavigateTOLogin()
-                            } else {
-                                Toast.makeText(context, "Login Failed", Toast.LENGTH_LONG).show()
-                            }
+                        if (success && user != null) {
+                            Toast.makeText(context, "Login Success", Toast.LENGTH_LONG).show()
+                            sessionManager.saveLogin()
+                            NavigateTOLogin()
+                        } else {
+                            Toast.makeText(context, "Login Failed", Toast.LENGTH_LONG).show()
                         }
-                    } else {
-                        Toast.makeText(context, "Login Unsuccessful", Toast.LENGTH_LONG).show()
                     }
+                } else {
+                    Toast.makeText(context, "Login Unsuccessful", Toast.LENGTH_LONG).show()
                 }
-            ) {
-                Text("Login")
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row {
-                Text("Not a Member? ")
-                Text(
-                    "Sign Up",
-                    modifier = Modifier.clickable {
-                        NavigateToRegister()
-                    },
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
+        ) {
+            Text("Login")
         }
 
+        Spacer(modifier = Modifier.height(12.dp))
 
-
+        Row {
+            Text("Not a Member? ")
+            Text(
+                "Sign Up",
+                modifier = Modifier.clickable {
+                    NavigateToRegister()
+                },
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
 
     }
+
+
+}
 
 fun isValidEmail(email: String): Boolean {
     return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
