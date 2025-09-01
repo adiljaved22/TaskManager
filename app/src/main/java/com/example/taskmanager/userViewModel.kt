@@ -52,12 +52,12 @@ class userViewModel(private val repo: Repository = Graph.userRepository) : ViewM
             repo.addTask(task)
         }
     }
-    fun update(taskid: Int,newTitle: String,newDescription: String)
-    {
-        viewModelScope.launch{repo.update(taskid,newTitle,newDescription )}
+
+    fun update(taskid: Int, newTitle: String, newDescription: String) {
+        viewModelScope.launch { repo.update(taskid, newTitle, newDescription) }
     }
 
-    fun delete(taskid: Int){
+    fun delete(taskid: Int) {
         viewModelScope.launch {
             repo.deletetask(taskid)
         }

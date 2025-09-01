@@ -45,6 +45,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.example.taskmanager.data.SqlQuries
 import com.example.taskmanager.data.UserEntity
 import java.nio.file.WatchEvent
 
@@ -55,6 +56,7 @@ import kotlin.text.ifEmpty
 
 @Composable
 fun RegisterUser(onBack: () -> Unit, viewModel: userViewModel) {
+
     var context = LocalContext.current
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -65,16 +67,18 @@ fun RegisterUser(onBack: () -> Unit, viewModel: userViewModel) {
     var passwordError by rememberSaveable { mutableStateOf("") }
 
     var selectedImage by remember { mutableStateOf<Uri?>(null) }
-var passwordVisible by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
+    val db = SqlQuries(context)
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri -> selectedImage = uri
-    if(uri!=null){
-        context.contentResolver.takePersistableUriPermission(
-            uri,
-            Intent.FLAG_GRANT_READ_URI_PERMISSION
-        )
-    }
+    ) { uri ->
+        selectedImage = uri
+        if (uri != null) {
+            context.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        }
 
 
     }
@@ -120,16 +124,19 @@ var passwordVisible by remember { mutableStateOf(false) }
             value = username,
             onValueChange = { username = it },
             label = { Text("Username") },
-            singleLine = true)
+            singleLine = true
+        )
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(value = email, onValueChange = { email = it },
+        OutlinedTextField(
+            value = email, onValueChange = { email = it },
             label = {
                 Text(
                     text = emailError.ifEmpty { "Email" },
                     color = if (emailError.isNotEmpty()) Red else Unspecified
                 )
-                    }, singleLine = true)
+            }, singleLine = true
+        )
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
@@ -160,10 +167,12 @@ var passwordVisible by remember { mutableStateOf(false) }
             value = password,
             onValueChange = { password = it },
             singleLine = true,
-            label = { Text(
-                text = passwordError.ifEmpty { "Password" },
-                color = if (passwordError.isNotEmpty()) Red else Unspecified
-            ) },visualTransformation =
+            label = {
+                Text(
+                    text = passwordError.ifEmpty { "Password" },
+                    color = if (passwordError.isNotEmpty()) Red else Unspecified
+                )
+            }, visualTransformation =
                 if (passwordVisible) {
                     VisualTransformation.None
 
@@ -187,14 +196,14 @@ var passwordVisible by remember { mutableStateOf(false) }
             value = confirmpassword,
             onValueChange = { confirmpassword = it },
             singleLine = true,
-            label = { Text("Confirm Password") } ,
-                    visualTransformation =
-            if (passwordVisible) {
-                VisualTransformation.None
+            label = { Text("Confirm Password") },
+            visualTransformation =
+                if (passwordVisible) {
+                    VisualTransformation.None
 
-            } else {
-                PasswordVisualTransformation('*')
-            },
+                } else {
+                    PasswordVisualTransformation('*')
+                },
             trailingIcon = {
                 val visibilityIcon =
                     if (passwordVisible) {
@@ -208,7 +217,10 @@ var passwordVisible by remember { mutableStateOf(false) }
             })
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(modifier = Modifier.fillMaxWidth().padding(start = 50.dp, end = 50.dp),
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 50.dp, end = 50.dp),
             onClick =
                 {
                     emailError = when {
@@ -226,11 +238,8 @@ var passwordVisible by remember { mutableStateOf(false) }
 
                     } else if (password != confirmpassword) {
                         Toast.makeText(context, "Passwords do not match", Toast.LENGTH_LONG).show()
-                    }
-
-
-                    else {
-                        val imageUri=selectedImage?.toString()?:""
+                    } else {
+                        val imageUri = selectedImage?.toString() ?: ""
 
                         val user = UserEntity(
                             username = username,
@@ -239,13 +248,30 @@ var passwordVisible by remember { mutableStateOf(false) }
                             imageUri = imageUri,
                             dateOfBirth = DOB
                         )
+                        val success = db.registerUser(
+                            name = user.username,
+                            email = user.email,
+                            password = user.password,
+                            imageUri = user.imageUri,
+                            dateOfBirth = user.dateOfBirth
+                        )
+                        if (success) {
+                            Toast.makeText(
+                                context,
+                                "User Registered Successfully",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            onBack()
+                        } else {
+                            Toast.makeText(context, "Registration Failed", Toast.LENGTH_LONG).show()
+                        }
 
-                        viewModel.register(user) { success, message ->
-                            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                        /*viewModel.register(user) { success, message ->
+                             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                             if (success) {
                                 onBack()
                             }
-                        }
+                        }*/
                     }
 
                 },

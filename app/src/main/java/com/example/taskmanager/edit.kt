@@ -18,9 +18,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.motionEventSpy
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.taskmanager.data.SqlQuries
 import com.example.taskmanager.data.TaskEntity
 
 @Composable
@@ -31,6 +33,8 @@ fun Edit(
 ) {
     var edittitle by remember { mutableStateOf(ItemToBeEdit.title) }
     var editDesc by remember { mutableStateOf(ItemToBeEdit.description) }
+    val context = LocalContext.current
+    val db = SqlQuries(context)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,24 +47,24 @@ fun Edit(
         OutlinedTextField(
             value = edittitle,
             onValueChange = { edittitle = it },
-            label = {Text("Title")}
+            label = { Text("Title") }
         )
         Spacer(modifier = Modifier.height(5.dp))
         OutlinedTextField(
             value = editDesc,
             onValueChange = { editDesc = it },
-            label = {Text("Description")}
+            label = { Text("Description") }
         )
         Spacer(modifier = Modifier.height(5.dp))
         Button(
             onClick =
                 {
-
-                    viewModel.update(
-                        taskid = ItemToBeEdit.id,
+                    db.updateTask(
+                        taskId = ItemToBeEdit.id,
                         newTitle = edittitle,
                         newDescription = editDesc
                     )
+
                     NavigateToEdit()
                 }
         )

@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.taskmanager.TaskEntity.AddTask
+import com.example.taskmanager.data.SqlQuries
+
 
 @Composable
 fun Navigation() {
@@ -60,8 +62,12 @@ fun Navigation() {
             arguments = listOf(navArgument("taskId") { type = NavType.IntType })
         ) { entry ->
             val taskId = entry.arguments!!.getInt("taskId")
-            val task =
-                viewModel.getall.collectAsState(initial = emptyList()).value.find { it.id == taskId }
+            val db = SqlQuries(navController.context)
+            val taskList = db.getAllTask()
+            val task = taskList.find { it.id == taskId }
+
+            /*   val task =
+                   viewModel.getall.collectAsState(initial = emptyList()).value.find { it.id == taskId }*/
             task?.let {
                 Edit(
                     NavigateToEdit = { navController.popBackStack() },

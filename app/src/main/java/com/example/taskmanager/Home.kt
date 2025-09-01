@@ -1,10 +1,6 @@
 package com.example.taskmanager
 
-import android.app.Activity
-import android.net.Uri
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -37,8 +32,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,37 +41,46 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.motionEventSpy
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.taskmanager.data.SqlQuries
 import com.example.taskmanager.data.TaskEntity
+import com.example.taskmanager.data.UserEntity
 
 
 @Composable
 fun Home(
     NavigateToTask: () -> Unit,
     NavigateToProfile: () -> Unit,
-    NavigateToEdit:(String)-> Unit,
-    onBack:()->Unit,
+    NavigateToEdit: (String) -> Unit,
+    onBack: () -> Unit,
     viewModel: userViewModel = viewModel()
 ) {
     var dialogBox by remember { mutableStateOf(false) }
-    val list by viewModel.getall.collectAsState(initial = emptyList())
-    val users by viewModel.getUser().collectAsState(initial = null)
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+//    val list by viewModel.getall.collectAsState(initial = emptyList())
+    val context = LocalContext.current
+    val db = SqlQuries(context)
+    var selectedTaskId by remember { mutableStateOf<Int?>(null) }
+    val user: UserEntity? = db.getSingleUser()
+    val tasks = remember { mutableStateListOf<TaskEntity>() }
+    LaunchedEffect(Unit) {
+        tasks.clear()
+        tasks.addAll(db.getAllTask())
+    }
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (users?.imageUri != null) {
+            if (user?.imageUri != null) {
                 Image(
-                    painter = rememberAsyncImagePainter(users?.imageUri),
+                    painter = rememberAsyncImagePainter(user?.imageUri),
                     contentDescription = "Profile Image",
                     modifier = Modifier
                         .size(70.dp)
@@ -84,7 +88,7 @@ fun Home(
                         .clickable { NavigateToProfile() },
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                users?.let {
+                user?.let {
                     Text(it.username, fontWeight = FontWeight.Medium)
                 }
             }
@@ -99,25 +103,30 @@ fun Home(
             Text("Tasks", fontWeight = FontWeight.Bold, fontSize = 22.sp)
         }
 
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)
-            ,contentPadding = PaddingValues(bottom = 10.dp)) {
-            items(list) { task ->
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 10.dp)
+        ) {
+            items(tasks) { task ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(6.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
 
-                    Row(modifier = Modifier.fillMaxWidth().padding(18.dp))
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp))
                     {
                         Column(
-                            modifier = Modifier.weight(1f)) {
+                            modifier = Modifier.weight(1f)
+                        ) {
 
                             Text(task.title, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(task.description, fontSize = 15.sp)
                         }
-                        IconButton(onClick = {NavigateToEdit("edit/${task.id}")}) {
+                        IconButton(onClick = { NavigateToEdit("edit/${task.id}") }) {
 
                             Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                         }
@@ -128,10 +137,12 @@ fun Home(
 
                                 confirmButton = {
                                     Button(onClick = {
-                                        viewModel.delete(
-                                            task.id
-                                        )
+                                        db.deleteTask(selectedTaskId!!)
+                                        tasks.clear()
+
+                                        tasks.addAll(db.getAllTask())
                                         dialogBox = false
+                                        selectedTaskId = null
                                     }) {
                                         Text("Confirm")
                                     }
@@ -145,7 +156,10 @@ fun Home(
                             )
 
                         }
-                        IconButton(onClick = { dialogBox = true }) {
+                        IconButton(onClick = {
+                            selectedTaskId = task.id
+                            dialogBox = true
+                        }) {
                             Icon(Icons.Default.Delete, contentDescription = null)
                         }
                     }

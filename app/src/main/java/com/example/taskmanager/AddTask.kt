@@ -19,13 +19,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.taskmanager.data.SqlQuries
 import com.example.taskmanager.data.TaskEntity
 import com.example.taskmanager.userViewModel
 
 @Composable
 fun AddTask(viewModel: userViewModel = viewModel(), onBack: () -> Unit) {
-val user by viewModel.getUser().collectAsState(initial = null)
+    /*val user by viewModel.getUser().collectAsState(initial = null)*/
     val context = LocalContext.current
+    val db = SqlQuries(context)
+
+
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
 
@@ -60,21 +64,22 @@ val user by viewModel.getUser().collectAsState(initial = null)
         Button(
             onClick = {
 
-            if (title.isNotBlank() && description.isNotBlank()) {
+                if (title.isNotBlank() && description.isNotBlank()) {
 
-                val newtask = TaskEntity(title = title, description = description)
+                    val newtask = TaskEntity(title = title, description = description)
 
-                viewModel.addTask(newtask)
-                title = ""
-                description = ""
+                    val taskId: Long = db.insertTask(newtask)
+
+                    title = ""
+                    description = ""
 
 
-                onBack()
-            } else {
-                Toast.makeText(context, "Fill All Blanks", Toast.LENGTH_LONG).show()
+                    onBack()
+                } else {
+                    Toast.makeText(context, "Fill All Blanks", Toast.LENGTH_LONG).show()
+                }
+
             }
-
-        }
 
         )
 

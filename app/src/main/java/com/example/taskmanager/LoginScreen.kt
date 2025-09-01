@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.taskmanager.data.SqlQuries
 
 
 @Composable
@@ -37,6 +38,8 @@ fun LoginScreen(
     val context = LocalContext.current
 
     val sessionManager = SessionManager(context)
+    val db = SqlQuries(context)
+
 
     var isLoggedIn by remember { mutableStateOf(sessionManager.isLoggedIn()) }
 
@@ -128,22 +131,34 @@ fun LoginScreen(
 
 
                 if (emailError.isEmpty() && passwordError.isEmpty()) {
-                    viewModel.login(email, password) { success, message, user ->
-                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-//                            val sessionManager = SessionManager(context)
+                    //This is a viewModel functionality for login
+//                    viewModel.login(email, password) { success, message, user ->
+//                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+////                            val sessionManager = SessionManager(context)
+//
+//                        if (success && user != null) {
+//                            Toast.makeText(context, "Login Success", Toast.LENGTH_LONG).show()
+//                            sessionManager.saveLogin()
+//                            NavigateTOLogin()
+//                        } else {
+//                            Toast.makeText(context, "Login Failed", Toast.LENGTH_LONG).show()
+//                        }
+//                    }
 
-                        if (success && user != null) {
-                            Toast.makeText(context, "Login Success", Toast.LENGTH_LONG).show()
-                            sessionManager.saveLogin()
-                            NavigateTOLogin()
-                        } else {
-                            Toast.makeText(context, "Login Failed", Toast.LENGTH_LONG).show()
-                        }
+                    //This is sqlite login functionality
+                    if (db.loginUser(email, password)) {
+                        Toast.makeText(context, "Login Success", Toast.LENGTH_LONG).show()
+                        sessionManager.saveLogin()
+                        NavigateTOLogin()
+                    } else {
+                        Toast.makeText(context, "Login Failed", Toast.LENGTH_LONG).show()
                     }
+
                 } else {
                     Toast.makeText(context, "Login Unsuccessful", Toast.LENGTH_LONG).show()
                 }
             }
+
         ) {
             Text("Login")
         }
@@ -162,8 +177,6 @@ fun LoginScreen(
         }
 
     }
-
-
 }
 
 fun isValidEmail(email: String): Boolean {
